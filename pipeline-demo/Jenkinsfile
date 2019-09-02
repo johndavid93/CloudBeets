@@ -1,0 +1,49 @@
+pipeline {
+  agent any
+  stages {
+    stage('Buzz Build') {
+      agent {
+        node {
+          label 'jdk7-node'
+        }
+
+      }
+      steps {
+        sh '''echo "I am a ${BUZZ_NAME}"
+./jenkins/build.sh'''
+      }
+    }
+    stage('Buzz Test') {
+      parallel {
+        stage('Testing A') {
+          agent {
+            node {
+              label 'jdk7-node'
+            }
+
+          }
+          steps {
+            sh './jenkins/test-all.sh'
+          }
+        }
+        stage('Testing B') {
+          agent {
+            node {
+              label 'jdk7-node'
+            }
+
+          }
+          steps {
+            sh '''sleep 10
+echo done.'''
+          }
+        }
+      }
+    }
+    stage('Confirm Deploy to Staging') {
+      steps {
+        input(message: ' ¿Desea implementar en la puesta en escena?', ok: 'sí, ¡hagámoslo!')
+      }
+    }
+  }
+}
